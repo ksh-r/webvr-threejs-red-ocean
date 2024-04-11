@@ -2,6 +2,8 @@ import * as THREE from './three/three.module.js';
 import { OrbitControls } from './three/OrbitControls.js';
 import { GLTFLoader } from './three/GLTFLoader.js';
 import { VRButton } from './three/VRButton.js';
+// import { DRACOLoader } from './three/DRACOLoader.js';
+// import { MeshoptDecoder } from './three/meshopt_decoder.module.js';
 
 import { Water } from './water.js';
 import { Sky } from './sky.js';
@@ -57,11 +59,12 @@ function init(){
     setSea();
     setSky();
     //setStar();
-    setModel();
+    // setModel();
+    setModel1();
 
     // For WebVR
-    document.body.appendChild( VRButton.createButton(renderer) );
-    renderer.xr.enabled = true;
+    // document.body.appendChild( VRButton.createButton(renderer) );
+    renderer.xr.enabled = false;
 
     rendering();
 }
@@ -100,7 +103,7 @@ function setSea(){
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             } ),
             alpha: 1.0,
-            waterColor: "rgb(255, 0, 0)", 
+            waterColor: "rgb(255, 255, 255)", 
             distortionScale: 3.7,
             fog:scene.fog !== undefined
         }
@@ -183,6 +186,79 @@ function setSky(){
 //     const mesh = new THREE.Points(geometry, material);
 //     scene.add(mesh);
 // }
+
+function setModel1() {
+    console.log("setModel1...");
+    var loader = new GLTFLoader();
+        // loader.setMeshoptDecoder(MeshoptDecoder);
+        // var dracoLoader = new DRACOLoader();
+        // dracoLoader.setDecoderPath(pathToDraco);
+        // loader.setDRACOLoader(dracoLoader);
+        loader.load('./assets/blackFinal.glb', (gltf) => {
+            console.log('~~ gltf', gltf);
+            gltf.scene.traverse(function (child) {
+                if (child.isMesh) {
+                    // child.material = new THREE.MeshNormalMaterial();
+                    // child.material.side = THREE.DoubleSide;
+                }
+            });
+            scene.add(gltf.scene);
+            // this.mixer = new THREE.AnimationMixer(gltf.scene);
+            // gltf.animations.forEach((clip) => {
+                // this.mixer.clipAction(clip).play();
+            // });
+        }, function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }, function (error) {
+            console.log('An error happened', error);
+        });
+
+        // const guiLightsFolder = this.gui.addFolder('Lights');
+        // guiLightsFolder.open();
+
+        // const guiAmbientLightFolder = guiLightsFolder.addFolder('Ambient');
+        // guiAmbientLightFolder.open();
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.01);
+        scene.add(ambientLight);
+
+        // guiAmbientLightFolder.addColor(ambientLight, 'color');
+        // guiAmbientLightFolder.add(ambientLight, 'intensity', 0, 0.5, 0.001);
+        // guiAmbientLightFolder.add(ambientLight.position, 'x', -10, 10, 0.2);
+        // guiAmbientLightFolder.add(ambientLight.position, 'y', -10, 10, 0.2);
+        // guiAmbientLightFolder.add(ambientLight.position, 'z', -10, 10, 0.2);
+
+        // const guiPointLightFolder = guiLightsFolder.addFolder('Point');
+        // guiPointLightFolder.open();
+
+        const pointLight = new THREE.PointLight(0xffffff, 3);
+        pointLight.position.set(0, 1, 10);
+        const lightHelper = new THREE.PointLightHelper(pointLight, 0.2, 0xff0000);
+        
+        const pointLight2 = new THREE.PointLight(0xffffff, 3);
+        pointLight2.position.set(10, 1, 0);
+        const lightHelper2 = new THREE.PointLightHelper(pointLight2, 0.2, 0x00ff00);
+        
+        const pointLight3 = new THREE.PointLight(0xffffff, 3);
+        pointLight3.position.set(-10, 1, 0);
+        const lightHelper3 = new THREE.PointLightHelper(pointLight3, 0.2, 0x0000ff);
+
+        // guiPointLightFolder.addColor(pointLight, 'color');
+        // guiPointLightFolder.add(pointLight, 'intensity', 0, 2, 0.001);
+        // guiPointLightFolder.add(pointLight.position, 'x', -10, 10, 0.2);
+        // guiPointLightFolder.add(pointLight.position, 'y', -10, 10, 0.2);
+        // guiPointLightFolder.add(pointLight.position, 'z', -10, 10, 0.2);
+
+        scene.add(pointLight);
+        scene.add(pointLight2);
+        scene.add(pointLight3);
+        // scene.add(lightHelper);
+        // scene.add(lightHelper2);
+        // scene.add(lightHelper3);
+
+        const axis = new THREE.AxesHelper(20);
+        // scene.add(axis)
+}
 
 function setModel(){
     console.log("setModel...");
